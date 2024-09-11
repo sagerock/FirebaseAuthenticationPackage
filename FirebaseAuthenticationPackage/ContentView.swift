@@ -7,9 +7,11 @@
 
 import SwiftUI
 import CoreData
+import FirebaseAuth
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @AppStorage("uid") var userID: String = ""
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
@@ -37,6 +39,11 @@ struct ContentView: View {
                         Label("Add Item", systemImage: "plus")
                     }
                 }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Logout") {
+                        logout()
+                    }
+                }
             }
             Text("Select an item")
         }
@@ -50,8 +57,6 @@ struct ContentView: View {
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
@@ -65,11 +70,18 @@ struct ContentView: View {
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
+        }
+    }
+
+    private func logout() {
+        do {
+            try Auth.auth().signOut()
+            userID = ""
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
         }
     }
 }
@@ -84,3 +96,4 @@ private let itemFormatter: DateFormatter = {
 #Preview {
     ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }
+

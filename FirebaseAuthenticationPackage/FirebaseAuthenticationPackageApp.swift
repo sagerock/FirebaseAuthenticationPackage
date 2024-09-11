@@ -6,15 +6,26 @@
 //
 
 import SwiftUI
+import FirebaseCore
+import CoreData
 
 @main
 struct FirebaseAuthenticationPackageApp: App {
-    let persistenceController = PersistenceController.shared
-
+    @StateObject private var persistenceController = PersistenceController.shared
+    @AppStorage("uid") var userID: String = ""
+    
+    init() {
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            if userID.isEmpty {
+                AuthView()
+            } else {
+                ContentView()
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            }
         }
     }
 }
